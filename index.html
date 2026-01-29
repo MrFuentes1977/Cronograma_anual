@@ -29,17 +29,40 @@
     .day.inactive { background:#f0f0f0; color:#aaa; }
     .day-number { font-weight:bold; font-size:0.9em; }
     
-    /* Estilo Actividad con botón eliminar */
+    /* MEJORA DE LEGIBILIDAD: Texto en negro y estilos de bloque */
     .activity-block {
-      margin-top:2px; padding:2px 5px; font-size:0.75em; color:#fff; border-radius:3px;
-      display: flex; justify-content: space-between; align-items: center;
+      margin-top:2px; 
+      padding:2px 5px; 
+      font-size:0.75em; 
+      color: #000 !important; /* Color de texto negro forzado */
+      font-weight: 500;
+      border-radius:3px;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      border: 1px solid rgba(0,0,0,0.1);
     }
+    .activity-block span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex-grow: 1;
+    }
+
     .delete-activity {
-      background: rgba(0,0,0,0.2); border: none; color: white; cursor: pointer;
-      font-weight: bold; border-radius: 50%; width: 14px; height: 14px;
-      display: flex; align-items: center; justify-content: center; font-size: 10px;
+      background: rgba(255,255,255,0.4); 
+      border: 1px solid rgba(0,0,0,0.2); 
+      color: #000; 
+      cursor: pointer;
+      font-weight: bold; 
+      border-radius: 50%; 
+      width: 14px; height: 14px;
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 10px;
+      margin-left: 4px;
+      flex-shrink: 0;
     }
-    .delete-activity:hover { background: rgba(0,0,0,0.5); }
+    .delete-activity:hover { background: #ff4d4d; color: white; }
 
     .btn-group { padding: 10px; text-align: center; }
     #addActivityBtn { padding:10px 20px; background:#007BFF; color:white; border:none; cursor:pointer; }
@@ -58,7 +81,6 @@
       width:100%; margin-bottom:10px; padding:5px; box-sizing: border-box;
     }
     
-    /* Contenedor oculto para exportación anual */
     #export-area { display: none; }
   </style>
 </head>
@@ -71,8 +93,8 @@
 
   <div class="btn-group">
     <button id="addActivityBtn">Agregar Actividad</button>
-    <button id="download">Download Mes (PDF)</button>
-    <button id="downloadYear">Download Año Completo (PDF)</button>
+    <button id="download">Descargar Mes (PDF)</button>
+    <button id="downloadYear">Descargar Año Completo (PDF)</button>
   </div>
 
   <div id="calendar-container">
@@ -89,8 +111,8 @@
       <input type="date" id="startDate" required>
       <label>Fecha Fin:</label>
       <input type="date" id="endDate" required>
-      <label>Color:</label>
-      <input type="color" id="activityColor" value="#007BFF">
+      <label>Color de fondo:</label>
+      <input type="color" id="activityColor" value="#a2c2e8">
       <div style="text-align:right;">
         <button id="saveActivity">Guardar</button>
         <button id="cancelActivity">Cancelar</button>
@@ -112,9 +134,8 @@
       localStorage.setItem("activities", JSON.stringify(activities));
     }
 
-    // Función para borrar actividad por ID
     function deleteActivity(id, event) {
-      event.stopPropagation(); // Evita abrir el modal al hacer click en la X
+      event.stopPropagation();
       if(confirm("¿Deseas eliminar esta actividad por completo?")) {
         let activities = getActivities();
         activities = activities.filter(act => act.id !== id);
@@ -132,14 +153,13 @@
       const daysInMonth = new Date(year, month+1, 0).getDate();
       const prevMonthDays = new Date(year, month, 0).getDate();
 
-      // Si es exportación, añadimos un título al mes
       if(isFullYearExport) {
         const title = document.createElement("h2");
         title.style.textAlign = "center";
+        title.style.margin = "20px 0 10px 0";
         title.textContent = date.toLocaleDateString("es-ES",{month:"long",year:"numeric"}).toUpperCase();
         targetEl.appendChild(title);
         
-        // Creamos una mini-grilla para ese mes dentro del contenedor de exportación
         const grid = document.createElement("div");
         grid.style.display = "grid";
         grid.style.gridTemplateColumns = "repeat(7,1fr)";
@@ -168,8 +188,10 @@
 
       for(let d=1;d<=daysInMonth;d++){
         const dayDate = new Date(year, month, d);
-        // Formato YYYY-MM-DD para comparación
-        const dateStr = dayDate.toISOString().split('T')[0];
+        // Ajuste manual de zona horaria para evitar desfases en el input date
+        const offset = dayDate.getTimezoneOffset();
+        const adjustedDate = new Date(dayDate.getTime() - (offset*60*1000));
+        const dateStr = adjustedDate.toISOString().split('T')[0];
         
         const day=document.createElement("div");
         day.className="day";
@@ -179,10 +201,9 @@
           if(dateStr >= act.startDate && dateStr <= act.endDate){
             const block=document.createElement("div");
             block.className="activity-block";
-            block.style.background=act.color;
+            block.style.backgroundColor = act.color;
             block.innerHTML = `<span>${act.name}</span>`;
             
-            // Botón X solo si no es exportación PDF anual (para que se vea limpio)
             if(!isFullYearExport) {
               const delBtn = document.createElement("button");
               delBtn.className = "delete-activity";
@@ -207,6 +228,7 @@
     function openModal(date){
       document.getElementById("startDate").value=date;
       document.getElementById("endDate").value=date;
+      document.getElementById("activityName").value = "";
       modal.style.display="flex";
     }
     
@@ -220,7 +242,6 @@
       const color=document.getElementById("activityColor").value;
       if(name && start && end){
         const activities=getActivities();
-        // Agregamos un ID único usando timestamp
         activities.push({id: Date.now(), name, startDate:start, endDate:end, color});
         saveActivities(activities);
         modal.style.display="none";
@@ -237,7 +258,6 @@
       renderCalendar(currentDate);
     };
 
-    // PDF Mes Actual
     document.getElementById("download").onclick=()=>{
       const element = document.getElementById("calendar-container");
       html2pdf().set({
@@ -248,10 +268,9 @@
       }).from(element).save();
     };
 
-    // PDF Año Completo (12 meses)
     document.getElementById("downloadYear").onclick= async function() {
       const exportArea = document.getElementById("export-area");
-      exportArea.innerHTML = ""; // Limpiar
+      exportArea.innerHTML = ""; 
       exportArea.style.display = "block";
       
       const year = currentDate.getFullYear();
@@ -259,7 +278,6 @@
       for (let m = 0; m < 12; m++) {
         const tempContainer = document.createElement("div");
         tempContainer.style.pageBreakAfter = "always";
-        tempContainer.style.padding = "10px";
         exportArea.appendChild(tempContainer);
         
         const tempDate = new Date(year, m, 1);
@@ -267,7 +285,7 @@
       }
 
       await html2pdf().set({
-        margin: 10,
+        margin: 5,
         filename: `calendario-anual-${year}.pdf`,
         html2canvas: { scale: 1.5 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
