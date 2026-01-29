@@ -1,252 +1,260 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Calendario de Planificación Anual</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Planificador Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #a2c2e8;
+            --dark-gray: #333;
+            --border-color: #ccc;
+            --bg-light: #f9f9f9;
+        }
 
-<!-- html2pdf -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eee; margin: 0; padding: 20px; }
+        
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
-<style>
-:root {
-  --blue: #4aa3df;
-  --light: #f5f7fa;
-  --border: #ddd;
-}
+        /* Estilos del Formulario */
+        .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding: 15px; background: var(--bg-light); border-radius: 5px; }
+        input, button { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; }
+        button { cursor: pointer; transition: 0.3s; }
+        .btn-add { background: #28a745; color: white; border: none; }
+        .btn-pdf { background: #007bff; color: white; border: none; }
+        .btn-full { background: #17a2b8; color: white; border: none; }
 
-* {
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
-}
+        /* Encabezado Calendario */
+        .calendar-header { 
+            background: var(--primary-blue); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px; 
+            border-radius: 5px 5px 0 0; 
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--dark-gray);
+        }
 
-body {
-  margin: 0;
-  background: var(--light);
-}
+        /* Cuadrícula */
+        .calendar-grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            border: 1px solid var(--border-color);
+        }
+        .day-header { background: #e9ecef; text-align: center; padding: 10px; border-bottom: 2px solid var(--border-color); font-weight: bold; }
+        
+        .day-cell { 
+            min-height: 120px; 
+            background: white; 
+            border: 0.5px solid var(--border-color); 
+            padding: 5px; 
+            position: relative;
+        }
+        .day-num { font-size: 0.9rem; margin-bottom: 5px; color: #777; }
+        .other-month { background: #f1f1f1; opacity: 0.5; }
 
-header {
-  background: var(--blue);
-  color: white;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+        /* Actividades */
+        .activity-item {
+            font-size: 0.75rem;
+            padding: 3px 6px;
+            margin-bottom: 3px;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #000;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        .delete-btn { 
+            background: rgba(0,0,0,0.1); 
+            border: none; 
+            cursor: pointer; 
+            font-size: 10px; 
+            border-radius: 50%; 
+            width: 16px; height: 16px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .delete-btn:hover { background: rgba(255,0,0,0.2); }
 
-header h2 {
-  margin: 0;
-}
-
-header button {
-  background: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: 5px;
-}
-
-main {
-  padding: 15px;
-}
-
-.controls {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
-}
-
-.controls input, .controls button {
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid var(--border);
-}
-
-.calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  background: white;
-  border: 1px solid var(--border);
-}
-
-.day-name, .day {
-  border: 1px solid var(--border);
-  min-height: 120px;
-  padding: 5px;
-}
-
-.day-name {
-  background: #eaf3fb;
-  font-weight: bold;
-  text-align: center;
-}
-
-.day-number {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.activity {
-  font-size: 12px;
-  padding: 2px 5px;
-  border-radius: 4px;
-  margin-bottom: 3px;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.activity span {
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.pdf-buttons {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-}
-</style>
+        /* Oculto para exportación */
+        #hidden-calendar { display: none; }
+        
+        @media print {
+            .controls, .nav-btns { display: none !important; }
+        }
+    </style>
 </head>
-
 <body>
 
-<header>
-  <div>
-    <button onclick="changeMonth(-1)">◀</button>
-    <button onclick="changeMonth(1)">▶</button>
-  </div>
-  <h2 id="title"></h2>
-  <div>
-    <button onclick="downloadCurrentMonth()">Descargar Mes Actual</button>
-    <button onclick="downloadFullYear()">Descargar Calendario Completo</button>
-  </div>
-</header>
+<div class="container">
+    <h2>Planificador de Actividades</h2>
+    
+    <div class="controls">
+        <input type="text" id="act-name" placeholder="Actividad (ej: Examen)">
+        <input type="date" id="act-start">
+        <input type="date" id="act-end">
+        <input type="color" id="act-color" value="#a2c2e8">
+        <button class="btn-add" onclick="addActivity()">+ Agregar Actividad</button>
+        <button class="btn-pdf" onclick="exportPDF('current')">PDF Mes Actual</button>
+        <button class="btn-full" onclick="exportAnnualPDF()">Descargar 12 Meses (Anual)</button>
+    </div>
 
-<main>
-
-<div class="controls">
-  <input type="text" id="name" placeholder="Actividad">
-  <input type="date" id="start">
-  <input type="date" id="end">
-  <input type="color" id="color">
-  <button onclick="addActivity()">Agregar</button>
+    <div id="calendar-area">
+        <div class="calendar-header">
+            <button onclick="changeMonth(-1)">&#10094;</button>
+            <span id="month-display">Enero 2026</span>
+            <button onclick="changeMonth(1)">&#10095;</button>
+        </div>
+        <div class="calendar-grid" id="calendar-body">
+            </div>
+    </div>
 </div>
 
-<div id="calendar-container">
-  <div class="calendar" id="calendar"></div>
-</div>
-
-</main>
+<div id="export-container" style="position: absolute; left: -9999px; width: 800px;"></div>
 
 <script>
-let currentDate = new Date();
-let activities = JSON.parse(localStorage.getItem("activities")) || [];
+    let currentDate = new Date();
+    let activities = JSON.parse(localStorage.getItem('calendar_activities')) || [];
 
-const days = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+    function renderCalendar(targetDate, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+        
+        const year = targetDate.getFullYear();
+        const month = targetDate.getMonth();
+        
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        if(containerId === "calendar-body") {
+            document.getElementById('month-display').innerText = `${monthNames[month]} ${year}`;
+        }
 
-function renderCalendar() {
-  const calendar = document.getElementById("calendar");
-  calendar.innerHTML = "";
+        // Cabeceras
+        const days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+        days.forEach(d => {
+            const div = document.createElement('div');
+            div.className = 'day-header';
+            div.innerText = d;
+            container.appendChild(div);
+        });
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
+        // Lógica de fechas
+        const firstDay = new Date(year, month, 1);
+        let startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // Ajuste Lunes a Domingo
+        
+        const prevMonthLastDay = new Date(year, month, 0).getDate();
+        const lastDay = new Date(year, month + 1, 0).getDate();
 
-  document.getElementById("title").innerText =
-    currentDate.toLocaleDateString("es-ES",{month:"long",year:"numeric"});
+        // Días mes anterior
+        for(let i = startDay; i > 0; i--) {
+            const cell = createCell(prevMonthLastDay - i + 1, true);
+            container.appendChild(cell);
+        }
 
-  days.forEach(d => {
-    calendar.innerHTML += `<div class="day-name">${d}</div>`;
-  });
+        // Días mes actual
+        for(let i = 1; i <= lastDay; i++) {
+            const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+            const cell = createCell(i, false, fullDate);
+            container.appendChild(cell);
+        }
+    }
 
-  const firstDay = new Date(year, month, 1);
-  let startIndex = (firstDay.getDay() + 6) % 7;
-  const totalDays = new Date(year, month + 1, 0).getDate();
+    function createCell(num, isOther, dateStr) {
+        const div = document.createElement('div');
+        div.className = `day-cell ${isOther ? 'other-month' : ''}`;
+        div.innerHTML = `<div class="day-num">${num}</div>`;
 
-  for (let i = 0; i < startIndex; i++) {
-    calendar.innerHTML += `<div class="day"></div>`;
-  }
+        if(dateStr) {
+            const dayActs = activities.filter(a => dateStr >= a.start && dateStr <= a.end);
+            dayActs.forEach(act => {
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                item.style.backgroundColor = act.color;
+                item.innerHTML = `
+                    <span>${act.name}</span>
+                    <button class="delete-btn" onclick="deleteActivity('${act.id}')">✖</button>
+                `;
+                div.appendChild(item);
+            });
+        }
+        return div;
+    }
 
-  for (let day = 1; day <= totalDays; day++) {
-    const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    const dayBox = document.createElement("div");
-    dayBox.className = "day";
-    dayBox.innerHTML = `<div class="day-number">${day}</div>`;
+    function addActivity() {
+        const name = document.getElementById('act-name').value;
+        const start = document.getElementById('act-start').value;
+        const end = document.getElementById('act-end').value;
+        const color = document.getElementById('act-color').value;
 
-    activities.forEach(act => {
-      if (dateStr >= act.start && dateStr <= act.end) {
-        const div = document.createElement("div");
-        div.className = "activity";
-        div.style.background = act.color;
-        div.innerHTML = `${act.name}<span onclick="removeActivity('${act.id}')">✖</span>`;
-        dayBox.appendChild(div);
-      }
-    });
+        if(!name || !start || !end) return alert("Completa todos los campos");
 
-    calendar.appendChild(dayBox);
-  }
-}
+        const newAct = { id: Date.now().toString(), name, start, end, color };
+        activities.push(newAct);
+        localStorage.setItem('calendar_activities', JSON.stringify(activities));
+        renderCalendar(currentDate, "calendar-body");
+    }
 
-function changeMonth(delta) {
-  currentDate.setMonth(currentDate.getMonth() + delta);
-  renderCalendar();
-}
+    function deleteActivity(id) {
+        if(confirm("¿Eliminar esta actividad de todas las fechas?")) {
+            activities = activities.filter(a => a.id !== id);
+            localStorage.setItem('calendar_activities', JSON.stringify(activities));
+            renderCalendar(currentDate, "calendar-body");
+        }
+    }
 
-function addActivity() {
-  const name = nameInput.value;
-  const start = startInput.value;
-  const end = endInput.value;
-  const color = colorInput.value;
+    function changeMonth(step) {
+        currentDate.setMonth(currentDate.getMonth() + step);
+        renderCalendar(currentDate, "calendar-body");
+    }
 
-  if (!name || !start || !end) return alert("Completa todos los campos");
+    // EXPORTACIÓN PDF
+    async function exportPDF(type) {
+        const element = document.getElementById('calendar-area');
+        const opt = {
+            margin: 10,
+            filename: `calendario-${type}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
 
-  activities.push({
-    id: crypto.randomUUID(),
-    name, start, end, color
-  });
+    async function exportAnnualPDF() {
+        const exportContainer = document.getElementById('export-container');
+        exportContainer.innerHTML = "<h1>Calendario Anual " + currentDate.getFullYear() + "</h1>";
+        
+        const originalDate = new Date(currentDate);
+        
+        for(let m = 0; m < 12; m++) {
+            const tempDate = new Date(originalDate.getFullYear(), m, 1);
+            const monthDiv = document.createElement('div');
+            monthDiv.style.pageBreakAfter = "always";
+            monthDiv.innerHTML = `
+                <div class="calendar-header" style="background:#a2c2e8; padding:10px; text-align:center;">
+                    ${tempDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
+                </div>
+                <div class="calendar-grid" id="grid-temp-${m}"></div>
+            `;
+            exportContainer.appendChild(monthDiv);
+            renderCalendar(tempDate, `grid-temp-${m}`);
+        }
 
-  localStorage.setItem("activities", JSON.stringify(activities));
-  renderCalendar();
-}
+        const opt = {
+            margin: 5,
+            filename: `calendario-anual-${originalDate.getFullYear()}.pdf`,
+            html2canvas: { scale: 1.5 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
 
-function removeActivity(id) {
-  if (!confirm("¿Eliminar esta actividad en todo el calendario?")) return;
-  activities = activities.filter(a => a.id !== id);
-  localStorage.setItem("activities", JSON.stringify(activities));
-  renderCalendar();
-}
+        await html2pdf().set(opt).from(exportContainer).save();
+        exportContainer.innerHTML = ""; // Limpiar
+    }
 
-function downloadCurrentMonth() {
-  html2pdf().from(document.getElementById("calendar-container"))
-    .set({ filename: "mes_actual.pdf", html2canvas:{scale:2} })
-    .save();
-}
-
-function downloadFullYear() {
-  const container = document.createElement("div");
-
-  const originalMonth = currentDate.getMonth();
-  for (let m = 0; m < 12; m++) {
-    currentDate.setMonth(m);
-    renderCalendar();
-    container.appendChild(document.getElementById("calendar-container").cloneNode(true));
-  }
-  currentDate.setMonth(originalMonth);
-  renderCalendar();
-
-  html2pdf().from(container)
-    .set({ filename: "calendario_anual.pdf", pagebreak:{mode:"after"} })
-    .save();
-}
-
-const nameInput = document.getElementById("name");
-const startInput = document.getElementById("start");
-const endInput = document.getElementById("end");
-const colorInput = document.getElementById("color");
-
-renderCalendar();
+    // Inicializar
+    renderCalendar(currentDate, "calendar-body");
 </script>
 
 </body>
