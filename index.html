@@ -3,299 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendario de Gestión de Actividades</title>
+  <title>Planificador Pro 2026 - Texto Completo</title>
   <style>
-    body { font-family: Arial, sans-serif; margin:0; background:#f4f4f4; }
-    header {
-      background:#007BFF; color:white; text-align:center; padding:10px; position:relative;
-    }
-    header h1 { margin:0; font-size:1.5em; }
-    .nav-btn {
-      position:absolute; top:10px; background:none; border:none; color:white;
-      font-size:1.5em; cursor:pointer;
-    }
-    #prev { left:10px; }
-    #next { right:10px; }
-    #calendar {
-      display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:#ccc; padding:5px;
-    }
-    .weekday {
-      background:#eee; font-weight:bold; text-align:center; padding:5px;
-    }
-    .day {
-      background:#fff; min-height:100px; border:1px solid #ccc; position:relative; padding:2px;
-      cursor:pointer; overflow-y:auto;
-    }
-    .day.inactive { background:#f0f0f0; color:#aaa; }
-    .day-number { font-weight:bold; font-size:0.9em; }
+    :root { --cell-height: 110px; } 
+
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin:0; background:#f4f4f4; color: #333; }
     
-    /* MEJORA DE LEGIBILIDAD: Texto en negro y estilos de bloque */
-    .activity-block {
-      margin-top:2px; 
-      padding:2px 5px; 
-      font-size:0.75em; 
-      color: #000 !important; /* Color de texto negro forzado */
-      font-weight: 500;
-      border-radius:3px;
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      border: 1px solid rgba(0,0,0,0.1);
-    }
-    .activity-block span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex-grow: 1;
-    }
-
-    .delete-activity {
-      background: rgba(255,255,255,0.4); 
-      border: 1px solid rgba(0,0,0,0.2); 
-      color: #000; 
-      cursor: pointer;
-      font-weight: bold; 
-      border-radius: 50%; 
-      width: 14px; height: 14px;
-      display: flex; align-items: center; justify-content: center; 
-      font-size: 10px;
-      margin-left: 4px;
-      flex-shrink: 0;
-    }
-    .delete-activity:hover { background: #ff4d4d; color: white; }
-
-    .btn-group { padding: 10px; text-align: center; }
-    #addActivityBtn { padding:10px 20px; background:#007BFF; color:white; border:none; cursor:pointer; }
-    #download { padding:10px 20px; background:green; color:white; border:none; cursor:pointer; }
-    #downloadYear { padding:10px 20px; background:#17a2b8; color:white; border:none; cursor:pointer; }
-
-    /* Modal */
-    .modal {
-      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-      background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index: 1000;
-    }
-    .modal-content {
-      background:white; padding:20px; border-radius:5px; width:300px;
-    }
-    .modal-content input, .modal-content select {
-      width:100%; margin-bottom:10px; padding:5px; box-sizing: border-box;
-    }
+    header { background:#007BFF; color:white; text-align:center; padding:15px; position:relative; }
+    .nav-btn { position:absolute; top:15px; background:rgba(255,255,255,0.2); border:none; color:white; font-size:1.2em; cursor:pointer; border-radius: 4px; padding: 5px 12px; }
+    #prev { left:15px; }
+    #next { right:15px; }
     
-    #export-area { display: none; }
+    .controls { padding: 15px; background: white; border-bottom: 1px solid #ddd; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .slider-container { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 5px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.85em; }
+
+    button { transition: all 0.2s; border-radius: 4px; font-weight: bold; cursor: pointer; padding: 10px 14px; border: none; font-size: 0.85em; }
+    #addActivityBtn { background:#007BFF; color:white; }
+    .btn-pdf { background:#28a745; color:white; }
+    .btn-backup { background: #6c757d; color: white; }
+
+    /* ÁREA DE IMPRESIÓN PROFESIONAL */
+    #print-area { background: white; margin: 10px auto; width: 100%; max-width: 1100px; padding: 20px; box-sizing: border-box; }
+    #pdfTitle { text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; color: #000; }
+    
+    #calendar { display:grid; grid-template-columns:repeat(7,1fr); background: #000; border: 1.5px solid #000; gap: 1.5px; }
+    .weekday { background:#e9ecef; font-weight:bold; text-align:center; padding:10px; font-size: 0.9em; }
+    
+    .day { background:#fff; min-height: var(--cell-height); position:relative; padding:4px; display: flex; flex-direction: column; cursor: pointer; }
+    .day.inactive { background: #fff; }
+    .day-number { font-weight:bold; font-size:1.1em; margin-bottom: 4px; color: #000; }
+    
+    /* MEJORA: TEXTO COMPLETO Y MULTILÍNEA */
+    .activity-block { 
+        display: flex; justify-content: space-between; align-items: flex-start;
+        padding: 3px 5px; 
+        font-size: 0.68em; /* Un poco más pequeña para ganar espacio */
+        color: #000 !important; 
+        font-weight: 700; 
+        border-radius: 2px; 
+        margin-bottom: 3px; 
+        border: 0.5px solid rgba(0,0,0,0.3); 
+        line-height: 1.1;
+    }
+    .activity-text { 
+        word-wrap: break-word; 
+        overflow-wrap: break-word; 
+        white-space: normal; /* Permite saltos de línea */
+        flex-grow: 1; 
+        text-align: left;
+    }
+    .delete-btn { color: #dc3545; font-weight: bold; margin-left: 4px; cursor: pointer; font-size: 1.2em; line-height: 1; flex-shrink: 0; }
+
+    @media print {
+        .nav-btn, .controls, header, .delete-btn { display: none !important; }
+        #print-area { padding: 0; width: 100%; max-width: none; }
+        .day { min-height: 135px !important; }
+        .activity-block { border: 0.3px solid #000; }
+    }
+
+    /* Modales */
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 1000; }
+    .modal-content { background:white; padding:25px; border-radius:12px; width:320px; }
+    .modal-content label { display: block; font-size: 0.9em; font-weight: bold; margin-top: 10px; }
+    .modal-content input { width:100%; padding:10px; margin-top:5px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
   </style>
 </head>
 <body>
+
   <header>
-    <button id="prev" class="nav-btn">◀</button>
-    <h1 id="monthYear"></h1>
-    <button id="next" class="nav-btn">▶</button>
+    <button id="prev" class="nav-btn">◀ Anterior</button>
+    <h1 id="uiHeader">Planificador Profesional</h1>
+    <button id="next" class="nav-btn">Siguiente ▶</button>
   </header>
 
-  <div class="btn-group">
-    <button id="addActivityBtn">Agregar Actividad</button>
-    <button id="download">Descargar Mes (PDF)</button>
-    <button id="downloadYear">Descargar Año Completo (PDF)</button>
+  <div class="controls">
+    <div class="slider-container">
+      <label>📏 Altura Celda:</label>
+      <input type="range" id="heightSlider" min="80" max="220" value="110">
+    </div>
+    <button id="addActivityBtn">＋ Nueva Actividad</button>
+    <button class="btn-pdf" onclick="exportPDF('month')">📄 PDF Mes</button>
+    <button class="btn-pdf" onclick="exportPDF('year')" style="background:#157347">🗓️ PDF Año Completo</button>
+    <button class="btn-backup" onclick="exportData()">💾 Exportar .JSON</button>
+    <button class="btn-backup" onclick="document.getElementById('importInput').click()">📂 Importar .JSON</button>
+    <input type="file" id="importInput" style="display:none" accept=".json" onchange="importData(event)">
   </div>
 
-  <div id="calendar-container">
+  <div id="print-area">
+    <div id="pdfTitle"></div>
     <div id="calendar"></div>
   </div>
 
-  <div id="export-area"></div>
-
   <div id="activityModal" class="modal">
     <div class="modal-content">
-      <h3>Nueva Actividad</h3>
-      <input type="text" id="activityName" placeholder="Nombre de la actividad" required>
-      <label>Fecha Inicio:</label>
-      <input type="date" id="startDate" required>
-      <label>Fecha Fin:</label>
-      <input type="date" id="endDate" required>
-      <label>Color de fondo:</label>
-      <input type="color" id="activityColor" value="#a2c2e8">
-      <div style="text-align:right;">
-        <button id="saveActivity">Guardar</button>
-        <button id="cancelActivity">Cancelar</button>
-      </div>
+      <h3 id="modalTitle" style="margin-top:0">Actividad</h3>
+      <input type="hidden" id="editIndex" value="-1">
+      <label>Nombre Actividad:</label><input type="text" id="activityName" placeholder="Ej: Elecciones Gobierno Escolar">
+      <label>Inicio:</label><input type="date" id="startDate">
+      <label>Fin:</label><input type="date" id="endDate">
+      <label>Color Fondo:</label><input type="color" id="activityColor" value="#ffffff">
+      <button id="saveActivity" style="width:100%; background:#007BFF; color:white; margin-top:15px; padding:12px;">Guardar Cambios</button>
+      <button onclick="closeModal()" style="width:100%; background:none; color:gray; margin-top:5px;">Cancelar</button>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
-    const calendarEl = document.getElementById("calendar");
-    const monthYearEl = document.getElementById("monthYear");
-    let currentDate = new Date();
-    const weekdays = ["L","M","X","J","V","S","D"];
+    let activities = JSON.parse(localStorage.getItem("calendar_acts")) || [];
+    let currentDate = new Date(2026, 0, 1);
 
-    function getActivities() {
-      return JSON.parse(localStorage.getItem("activities") || "[]");
-    }
-    function saveActivities(activities) {
-      localStorage.setItem("activities", JSON.stringify(activities));
-    }
+    document.getElementById("heightSlider").addEventListener("input", (e) => {
+      document.documentElement.style.setProperty('--cell-height', e.target.value + 'px');
+    });
 
-    function deleteActivity(id, event) {
-      event.stopPropagation();
-      if(confirm("¿Deseas eliminar esta actividad por completo?")) {
-        let activities = getActivities();
-        activities = activities.filter(act => act.id !== id);
-        saveActivities(activities);
-        renderCalendar(currentDate);
-      }
-    }
-
-    function renderCalendar(date, targetEl = calendarEl, isFullYearExport = false) {
-      targetEl.innerHTML = "";
+    function render(date) {
       const year = date.getFullYear();
       const month = date.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const startDay = (firstDay.getDay() + 6) % 7; 
-      const daysInMonth = new Date(year, month+1, 0).getDate();
-      const prevMonthDays = new Date(year, month, 0).getDate();
+      const monthLabel = date.toLocaleDateString("es-ES", {month:"long", year:"numeric"});
+      document.getElementById("pdfTitle").textContent = monthLabel;
+      const cal = document.getElementById("calendar");
+      cal.innerHTML = "";
 
-      if(isFullYearExport) {
-        const title = document.createElement("h2");
-        title.style.textAlign = "center";
-        title.style.margin = "20px 0 10px 0";
-        title.textContent = date.toLocaleDateString("es-ES",{month:"long",year:"numeric"}).toUpperCase();
-        targetEl.appendChild(title);
-        
-        const grid = document.createElement("div");
-        grid.style.display = "grid";
-        grid.style.gridTemplateColumns = "repeat(7,1fr)";
-        grid.style.gap = "1px";
-        grid.style.background = "#ccc";
-        targetEl.appendChild(grid);
-        targetEl = grid; 
-      } else {
-        monthYearEl.textContent = date.toLocaleDateString("es-ES",{month:"long",year:"numeric"});
-      }
-
-      weekdays.forEach(d=>{
-        const wd=document.createElement("div");
-        wd.className="weekday"; wd.textContent=d;
-        targetEl.appendChild(wd);
+      ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"].forEach(d => {
+        const h = document.createElement("div"); h.className = "weekday"; h.textContent = d.substring(0,2); cal.appendChild(h);
       });
 
-      for(let i=0;i<startDay;i++){
-        const day=document.createElement("div");
-        day.className="day inactive";
-        day.innerHTML=`<div class="day-number">${prevMonthDays-startDay+i+1}</div>`;
-        targetEl.appendChild(day);
-      }
+      const firstDay = new Date(year, month, 1);
+      const startDay = (firstDay.getDay() + 6) % 7; 
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      const activities=getActivities();
+      for(let i=0; i<startDay; i++) cal.appendChild(Object.assign(document.createElement("div"), {className: "day inactive"}));
 
-      for(let d=1;d<=daysInMonth;d++){
-        const dayDate = new Date(year, month, d);
-        // Ajuste manual de zona horaria para evitar desfases en el input date
-        const offset = dayDate.getTimezoneOffset();
-        const adjustedDate = new Date(dayDate.getTime() - (offset*60*1000));
-        const dateStr = adjustedDate.toISOString().split('T')[0];
+      for(let d=1; d<=daysInMonth; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dayDiv = document.createElement("div");
+        dayDiv.className = "day";
+        dayDiv.innerHTML = `<span class="day-number">${d}</span>`;
         
-        const day=document.createElement("div");
-        day.className="day";
-        day.innerHTML=`<div class="day-number">${d}</div>`;
+        dayDiv.onclick = (e) => { if(e.target === dayDiv || e.target.className === 'day-number') openModal(-1, dateStr); };
 
-        activities.forEach(act=>{
-          if(dateStr >= act.startDate && dateStr <= act.endDate){
-            const block=document.createElement("div");
-            block.className="activity-block";
-            block.style.backgroundColor = act.color;
-            block.innerHTML = `<span>${act.name}</span>`;
+        activities.forEach((a, index) => {
+          if(dateStr >= a.start && dateStr <= a.end) {
+            const act = document.createElement("div");
+            act.className = "activity-block";
+            act.style.backgroundColor = a.color;
             
-            if(!isFullYearExport) {
-              const delBtn = document.createElement("button");
-              delBtn.className = "delete-activity";
-              delBtn.textContent = "×";
-              delBtn.onclick = (e) => deleteActivity(act.id, e);
-              block.appendChild(delBtn);
-            }
+            const txt = document.createElement("span");
+            txt.className = "activity-text";
+            txt.textContent = a.name;
+            txt.onclick = (e) => { e.stopPropagation(); openModal(index); };
             
-            day.appendChild(block);
+            const del = document.createElement("span");
+            del.className = "delete-btn";
+            del.innerHTML = "&times;";
+            del.onclick = (e) => { e.stopPropagation(); deleteActivity(index); };
+            
+            act.appendChild(txt);
+            act.appendChild(del);
+            dayDiv.appendChild(act);
           }
         });
-
-        if(!isFullYearExport) day.addEventListener("click",()=>openModal(dateStr));
-        targetEl.appendChild(day);
+        cal.appendChild(dayDiv);
       }
+      
+      const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+      for(let i=0; i < (totalCells - (startDay + daysInMonth)); i++) cal.appendChild(Object.assign(document.createElement("div"), {className: "day inactive"}));
     }
 
-    const modal=document.getElementById("activityModal");
-    const saveBtn=document.getElementById("saveActivity");
-    const cancelBtn=document.getElementById("cancelActivity");
-
-    function openModal(date){
-      document.getElementById("startDate").value=date;
-      document.getElementById("endDate").value=date;
-      document.getElementById("activityName").value = "";
-      modal.style.display="flex";
+    function openModal(index = -1, date = null) {
+      const modal = document.getElementById("activityModal");
+      const idxInput = document.getElementById("editIndex");
+      if(index > -1) {
+        const a = activities[index];
+        document.getElementById("activityName").value = a.name;
+        document.getElementById("startDate").value = a.start;
+        document.getElementById("endDate").value = a.end;
+        document.getElementById("activityColor").value = a.color;
+        idxInput.value = index;
+      } else {
+        document.getElementById("activityName").value = "";
+        document.getElementById("startDate").value = date || "";
+        document.getElementById("endDate").value = date || "";
+        document.getElementById("activityColor").value = "#ffffff";
+        idxInput.value = -1;
+      }
+      modal.style.display = "flex";
     }
-    
-    document.getElementById("addActivityBtn").onclick=()=>{ modal.style.display="flex"; };
-    cancelBtn.onclick=()=>{ modal.style.display="none"; };
 
-    saveBtn.onclick=()=>{
-      const name=document.getElementById("activityName").value;
-      const start=document.getElementById("startDate").value;
-      const end=document.getElementById("endDate").value;
-      const color=document.getElementById("activityColor").value;
-      if(name && start && end){
-        const activities=getActivities();
-        activities.push({id: Date.now(), name, startDate:start, endDate:end, color});
-        saveActivities(activities);
-        modal.style.display="none";
-        renderCalendar(currentDate);
+    function closeModal() { document.getElementById("activityModal").style.display = "none"; }
+
+    function deleteActivity(index) {
+      if(confirm("¿Eliminar actividad?")) { activities.splice(index, 1); saveAndRender(); }
+    }
+
+    document.getElementById("saveActivity").onclick = () => {
+      const name = document.getElementById("activityName").value;
+      const index = parseInt(document.getElementById("editIndex").value);
+      const data = {
+        name: name, start: document.getElementById("startDate").value,
+        end: document.getElementById("endDate").value, color: document.getElementById("activityColor").value
+      };
+      if(!name) return;
+      if(index > -1) activities[index] = data;
+      else activities.push(data);
+      saveAndRender(); closeModal();
+    };
+
+    function saveAndRender() { localStorage.setItem("calendar_acts", JSON.stringify(activities)); render(currentDate); }
+
+    async function exportPDF(type) {
+      const element = document.getElementById("print-area");
+      const originalDate = new Date(currentDate);
+      const opt = {
+        margin: 10, filename: type === 'year' ? 'Plan_Completo_2026.pdf' : `Mes_${document.getElementById("pdfTitle").textContent}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
+      };
+
+      if (type === 'month') {
+        render(currentDate);
+        html2pdf().set(opt).from(element).save();
+      } else {
+        const doc = html2pdf().set(opt).from(element).toPdf();
+        for (let i = 0; i < 12; i++) {
+          render(new Date(2026, i, 1));
+          await new Promise(r => setTimeout(r, 500)); // Espera extra para asegurar el ajuste de texto
+          if (i > 0) await doc.get('pdf').then(pdf => pdf.addPage());
+          await doc.toCanvas().toImg().toPdf();
+        }
+        doc.save();
       }
-    };
+      setTimeout(() => render(originalDate), 1000);
+    }
 
-    document.getElementById("prev").onclick=()=>{
-      currentDate.setMonth(currentDate.getMonth()-1);
-      renderCalendar(currentDate);
-    };
-    document.getElementById("next").onclick=()=>{
-      currentDate.setMonth(currentDate.getMonth()+1);
-      renderCalendar(currentDate);
-    };
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activities));
+      const a = document.createElement('a'); a.href = dataStr; a.download = "respaldo.json"; a.click();
+    }
 
-    document.getElementById("download").onclick=()=>{
-      const element = document.getElementById("calendar-container");
-      html2pdf().set({
-        margin: 10,
-        filename: `mes-${monthYearEl.textContent}.pdf`,
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-      }).from(element).save();
-    };
+    function importData(event) {
+      const reader = new FileReader();
+      reader.onload = (e) => { activities = JSON.parse(e.target.result); saveAndRender(); };
+      reader.readAsText(event.target.files[0]);
+    }
 
-    document.getElementById("downloadYear").onclick= async function() {
-      const exportArea = document.getElementById("export-area");
-      exportArea.innerHTML = ""; 
-      exportArea.style.display = "block";
-      
-      const year = currentDate.getFullYear();
-      
-      for (let m = 0; m < 12; m++) {
-        const tempContainer = document.createElement("div");
-        tempContainer.style.pageBreakAfter = "always";
-        exportArea.appendChild(tempContainer);
-        
-        const tempDate = new Date(year, m, 1);
-        renderCalendar(tempDate, tempContainer, true);
-      }
+    document.getElementById("prev").onclick = () => { currentDate.setMonth(currentDate.getMonth()-1); render(currentDate); };
+    document.getElementById("next").onclick = () => { currentDate.setMonth(currentDate.getMonth()+1); render(currentDate); };
+    document.getElementById("addActivityBtn").onclick = () => openModal();
 
-      await html2pdf().set({
-        margin: 5,
-        filename: `calendario-anual-${year}.pdf`,
-        html2canvas: { scale: 1.5 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-      }).from(exportArea).save();
-      
-      exportArea.style.display = "none";
-      exportArea.innerHTML = "";
-    };
-
-    renderCalendar(currentDate);
+    render(currentDate);
   </script>
 </body>
 </html>
